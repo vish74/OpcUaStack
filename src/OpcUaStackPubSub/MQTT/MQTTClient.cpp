@@ -24,7 +24,8 @@ namespace OpcUaStackPubSub
 
 	MQTTClient::MQTTClient(void)
 	: MQTTClientIf()
-	, mqttClient_(nullptr)
+	, mosquittopp()
+	, callback_(nullptr)
 	{
 	}
 
@@ -32,35 +33,147 @@ namespace OpcUaStackPubSub
 	{
 	}
 
+	// #######################################################################
+	//
+	//  De/Initialization Handling
+	//
+	// #######################################################################
+
 	bool
 	MQTTClient::init(void)
 	{
-		// Initialize the Mosquitto library
 		mosquitto_lib_init();
-
 		return true;
 	}
 
 	bool
 	MQTTClient::cleanup(void)
 	{
-		 // Tidy up
-		  mosquitto_lib_cleanup();
-
+		mosquitto_lib_cleanup();
+		callback_ = nullptr;
 		return true;
 	}
 
+	// #######################################################################
+	//
+	//  Startup and Shutdown Handling
+	//
+	// #######################################################################
+
 	bool
-	MQTTClient::startup(void)
+	MQTTClient::startup(const char* host, int port)
 	{
-		return false;
+		connect_async(host, port);
+		loop_start();
+		return true;
 	}
 
 	bool
 	MQTTClient::shutdown(void)
 	{
-		return false;
+		loop_stop(true);
+		disconnect();
+		return true;
 	}
+
+	// #######################################################################
+	//
+	//  Publish Handling
+	//
+	// #######################################################################
+
+	int
+	MQTTClient::sendPublish(int mid, const char* topic, const void* payload,
+			int payloadlen, int qos, bool retain)
+	{
+		return publish(&mid, topic, payloadlen, payload, qos, retain);
+	}
+
+	// #######################################################################
+	//
+	//  Subscriber Handling
+	//
+	// #######################################################################
+
+	int
+	MQTTClient::createSubscribtion(int mid, const char* topic, int qos)
+	{
+		return subscribe(&mid, topic, qos);
+	}
+
+	int
+	MQTTClient::deleteSubscribtion(int mid, const char* topic)
+	{
+		return unsubscribe(&mid, topic);
+	}
+
+	// #######################################################################
+	//
+	//  Callback Handling
+	//
+	// #######################################################################
+
+	void
+	MQTTClient::setCallback(MQTTClientCallback* callback)
+	{
+		callback_ = callback;
+	}
+
+	void
+	MQTTClient::on_connect(int rc)
+	{
+		if ( callback_ ) callback_->onConnect(rc);
+	}
+
+	void
+	MQTTClient::on_disconnect(int rc)
+	{
+		if ( callback_ ) callback_->onDisconnect(rc);
+	}
+
+	void
+	MQTTClient::on_publish(int mid)
+	{
+		if ( callback_ ) callback_->onPublish(mid);
+	}
+
+	void
+	MQTTClient::on_message(const struct mosquitto_message* message)
+	{
+		if ( callback_ ) callback_->onMessage(message->mid, message->topic,
+				message->payload, message->payloadlen,
+				message->qos, message->retain);
+	}
+
+	void
+	MQTTClient::on_subscribe(int mid, int qos_count, const int* granted_qos)
+	{
+		if ( callback_ ) callback_->onSubscribe(mid);
+	}
+
+	void
+	MQTTClient::on_unsubscribe(int mid)
+	{
+		if ( callback_ ) callback_->onUnSubscribe(mid);
+	}
+
+	void
+	MQTTClient::on_log(int level, const char* logStr)
+	{
+		std::cout << "MQTTClient::" << "on_log " << level << " -- " << logStr << std::endl;
+	}
+
+	void
+	MQTTClient::on_error()
+	{
+		std::cout << "MQTTClient::" << "on_error" << std::endl;
+	}
+
+	// #######################################################################
+	//
+	//  Helper Functions
+	//
+	// #######################################################################
 
 	bool
 	MQTTClient::mqttClientIfEnabled(void)

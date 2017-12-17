@@ -20,6 +20,7 @@
 
 #include <boost/shared_ptr.hpp>
 #include "OpcUaStackCore/Base/os.h"
+#include "OpcUaStackPubSub/MQTT/MQTTClientCallback.h"
 
 namespace OpcUaStackPubSub
 {
@@ -32,18 +33,25 @@ namespace OpcUaStackPubSub
 		MQTTClientIf(void);
 		virtual ~MQTTClientIf(void);
 
-		//
-		// virtual functions
-		//
+		// INITIALIZE
 		virtual bool init(void);
 		virtual bool cleanup(void);
-		virtual bool startup(void);
+		virtual bool startup(const char* host, int port);
 		virtual bool shutdown(void);
 		virtual bool mqttClientIfEnabled(void);
 
-		//
+		// PUBLISHER
+		virtual int sendPublish(int mid, const char* topic, const void* payload,
+				int payloadlen, int qos = 0, bool retain = false);
+
+		// SUBSCIRBER
+		virtual int createSubscribtion(int mid, const char* topic, int qos = 0);
+		virtual int deleteSubscribtion(int mid, const char* topic);
+
+		// CALLBACK HANDLING
+		virtual void setCallback(MQTTClientCallback* callback);
+
 		// class functions
-		//
 		void clientName(const std::string& clientName);
 		std::string& clientName(void);
 

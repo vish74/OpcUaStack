@@ -19,6 +19,11 @@
 
 namespace OpcUaStackPubSub
 {
+	// #######################################################################
+	//
+	//  MQTTClientIf dummy
+	//
+	// #######################################################################
 
 	MQTTClientIf::MQTTClientIf(void)
 	{
@@ -35,8 +40,9 @@ namespace OpcUaStackPubSub
 	}
 
 	bool
-	MQTTClientIf::startup(void)
+	MQTTClientIf::startup(const char* host, int port)
 	{
+		std::cout << "startup abstarct" << std::endl;
 		return false;
 	}
 
@@ -58,6 +64,30 @@ namespace OpcUaStackPubSub
 		return false;
 	}
 
+	int
+	MQTTClientIf::sendPublish(int mid, const char* topic, const void* payload,
+			int payloadlen, int qos, bool retain)
+	{
+		return 0;
+	}
+
+	int
+	MQTTClientIf::createSubscribtion(int mid, const char* topic, int qos)
+	{
+		return 0;
+	}
+
+	int
+	MQTTClientIf::deleteSubscribtion(int mid, const char* topic)
+	{
+		return 0;
+	}
+
+	void
+	MQTTClientIf::setCallback(MQTTClientCallback* callback)
+	{
+	}
+
 	void
 	MQTTClientIf::clientName(const std::string& clientName)
 	{
@@ -69,5 +99,4 @@ namespace OpcUaStackPubSub
 	{
 		return clientName_;
 	}
-
 }

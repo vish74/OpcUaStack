@@ -23,9 +23,13 @@
 #include "OpcUaStackCore/Base/os.h"
 #include "OpcUaStackCore/Base/ObjectPool.h"
 #include "OpcUaStackPubSub/MQTT/MQTTClientIf.h"
+#include "OpcUaStackPubSub/MQTT/MQTTClientCallback.h"
+
+#define USE_MOSQUITTO_CLIENT
 
 #ifdef USE_MOSQUITTO_CLIENT
 #include "mosquitto.h"
+#include "mosquittopp.h"
 #endif
 
 using namespace OpcUaStackCore;
@@ -37,6 +41,7 @@ namespace OpcUaStackPubSub
 
 	class DLLEXPORT MQTTClient
 	: public MQTTClientIf
+	, private mosqpp::mosquittopp
 	{
 	  public:
 		typedef boost::shared_ptr<MQTTClient> SPtr;
@@ -44,15 +49,36 @@ namespace OpcUaStackPubSub
 		MQTTClient(void);
 		virtual ~MQTTClient(void);
 
-		virtual bool init(void);
-		virtual bool cleanup(void);
-		virtual bool startup(void);
-		virtual bool shutdown(void);
-		virtual bool mqttClientIfEnabled(void);
+		// INITIALIZE
+		bool init(void);
+		bool cleanup(void);
+		bool startup(const char* host, int port);
+		bool shutdown(void);
+		bool mqttClientIfEnabled(void);
+
+		// PUBLISHER
+		int sendPublish(int mid, const char* topic, const void* payload,
+				int payloadlen, int qos = 0, bool retain = false);
+
+		// SUBSCIRBER
+		int createSubscribtion(int mid, const char* topic, int qos = 0);
+		int deleteSubscribtion(int mid, const char* topic);
+
+		// CALLBACK HANDLING
+		void setCallback(MQTTClientCallback* callback);
+
+		// CALLBACKS MQTT
+		void on_connect(int rc);
+		void on_disconnect(int rc);
+		void on_publish(int mid);
+		void on_message(const struct mosquitto_message* message);
+		void on_subscribe(int mid, int qos_count, const int* granted_qos);
+		void on_unsubscribe(int mid);
+		void on_log(int level, const char* logStr);
+		void on_error();
 
 	  private:
-		struct mosquitto *mqttClient_;
-
+		MQTTClientCallback* callback_;
 	};
 
 #endif
