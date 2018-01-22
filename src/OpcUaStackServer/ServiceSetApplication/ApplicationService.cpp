@@ -1,5 +1,5 @@
 /*
-   Copyright 2015-2017 Kai Huebl (kai@huebl-sgh.de)
+   Copyright 2015-2018 Kai Huebl (kai@huebl-sgh.de)
 
    Lizenziert gemäß Apache Licence Version 2.0 (die „Lizenz“); Nutzung dieser
    Datei nur in Übereinstimmung mit der Lizenz erlaubt.
@@ -19,6 +19,8 @@
 #include "OpcUaStackCore/ServiceSetApplication/ApplicationServiceTransaction.h"
 #include "OpcUaStackCore/BuildInTypes/OpcUaIdentifier.h"
 #include "OpcUaStackServer/InformationModel/InformationModelManager.h"
+#include "OpcUaStackServer/InformationModel/InformationModelAccess.h"
+#include "OpcUaStackServer/InformationModel/NamespaceArray.h"
 #include "OpcUaStackServer/ServiceSetApplication/ApplicationService.h"
 #include "OpcUaStackServer/ServiceSetApplication/NodeReferenceApplication.h"
 #include "OpcUaStackServer/AddressSpaceModel/AttributeAccess.h"
@@ -100,6 +102,10 @@ namespace OpcUaStackServer
 			trx->componentSession()->send(serviceTransaction);
 			return;
 		}
+		bool applicationContextArray = false;
+		if (registerForwardNodeRequest->applicationContextArray()->size() == registerForwardNodeRequest->nodesToRegister()->size()) {
+			applicationContextArray = true;
+		}
 
 		// register forward
 		registerForwardNodeResponse->statusCodeArray()->resize(registerForwardNodeRequest->nodesToRegister()->size());
@@ -130,10 +136,21 @@ namespace OpcUaStackServer
 			// create or update forward info
 			ForwardNodeSync::SPtr forwardNodeSync = baseNodeClass->forwardNodeSync();
 			if (forwardNodeSync.get() == nullptr) {
-				forwardNodeSync = registerForwardNodeRequest->forwardNodeSync();
+				forwardNodeSync = constructSPtr<ForwardNodeSync>();
 			}
-			else {
-				forwardNodeSync->updateFrom(*registerForwardNodeRequest->forwardNodeSync());
+			forwardNodeSync->updateFrom(*registerForwardNodeRequest->forwardNodeSync());
+			if (applicationContextArray) {
+				BaseClass::SPtr baseClass;
+				registerForwardNodeRequest->applicationContextArray()->get(idx, baseClass);
+				if (baseClass.get() != nullptr) {
+					forwardNodeSync->writeService().applicationContext(baseClass);
+					forwardNodeSync->readService().applicationContext(baseClass);
+					forwardNodeSync->writeService().applicationContext(baseClass);
+					forwardNodeSync->readHService().applicationContext(baseClass);
+					forwardNodeSync->methodService().applicationContext(baseClass);
+					forwardNodeSync->monitoredItemStartService().applicationContext(baseClass);
+					forwardNodeSync->monitoredItemStopService().applicationContext(baseClass);
+				}
 			}
 			baseNodeClass->forwardNodeSync(forwardNodeSync);
 
@@ -295,8 +312,17 @@ namespace OpcUaStackServer
 		Log(Debug, "application service namespace info request")
 			.parameter("Trx", serviceTransaction->transactionId());
 
-		// read global namespaces
+		// register new namespace
 		NodeSetNamespace nodeSetNamespace;
+		if (namespaceInfoRequest->newNamespaceUri() != "") {
+			nodeSetNamespace.addNewGlobalNamespace(namespaceInfoRequest->newNamespaceUri());
+
+			NamespaceArray nsa;
+			nsa.informationModel(informationModel_);
+			nsa.addNamespaceName(namespaceInfoRequest->newNamespaceUri());
+		}
+
+		// read global namespaces
 		for (uint32_t idx = 0; idx < nodeSetNamespace.globalNamespaceVec().size(); idx++) {
 			std::string namespaceName = nodeSetNamespace.globalNamespaceVec()[idx];
 			namespaceInfoResponse->index2NamespaceMap().insert(std::make_pair(idx, namespaceName));
@@ -396,9 +422,51 @@ namespace OpcUaStackServer
 		}
 
 		//
-		// FIXME: todo
-		// we do not handle the event hirachy at the moment
+		// get nodes from event hierarchy
 		//
+		std::vector<OpcUaNodeId> nodeIdVec;
+		std::vector<OpcUaNodeId>::iterator nodeIt;;
+
+		std::set<OpcUaNodeId> duplicateNodeIdSet;
+		std::set<OpcUaNodeId> workNodeIdSet;
+
+		workNodeIdSet.insert(fireEventRequest->nodeId());
+
+		while (workNodeIdSet.size() != 0)
+		{
+			// get first node from node id set
+			OpcUaNodeId nodeId = *workNodeIdSet.begin();
+			workNodeIdSet.erase(workNodeIdSet.begin());
+
+			nodeIdVec.push_back(nodeId);
+			duplicateNodeIdSet.insert(nodeId);
+
+			// get base class
+			BaseNodeClass::SPtr node = informationModel_->find(nodeId);
+			if (node.get() == nullptr) continue;
+
+			// get all parent nodes of event notifier reference (backward)
+			InformationModelAccess ima(informationModel_);
+			OpcUaNodeId referenceTypeNodeId(OpcUaId_HasNotifier);
+			std::vector<OpcUaNodeId> parentNodeIdVec;
+			bool success = ima.getParentHierarchically(
+				baseNodeClass,
+				referenceTypeNodeId,
+				parentNodeIdVec
+			);
+			if (!success) {
+				continue;
+			}
+
+			std::vector<OpcUaNodeId>::iterator itpn;
+			for (itpn = parentNodeIdVec.begin(); itpn != parentNodeIdVec.end(); itpn++) {
+				// check duplicate
+				if (duplicateNodeIdSet.find(*itpn) != duplicateNodeIdSet.end()) {
+					continue;
+				}
+				workNodeIdSet.insert(*itpn);
+			}
+		};
 
 		//
 		// find event filter
@@ -408,11 +476,19 @@ namespace OpcUaStackServer
 		EventHandlerBase::Vec eventHandlerBaseVec;
 		EventHandlerBase::Vec::iterator it;
 
-		boost::mutex::scoped_lock g(eventHandlerMap.mutex());
-		eventHandlerMap.getEvent(fireEventRequest->nodeId(), eventHandlerBaseVec);
-		for (it = eventHandlerBaseVec.begin(); it != eventHandlerBaseVec.end(); it++) {
-			EventHandlerBase::SPtr eventHandlerBase = *it;
-			eventHandlerBase->fireEvent(fireEventRequest->nodeId(), fireEventRequest->eventBase());
+		for (nodeIt = nodeIdVec.begin(); nodeIt != nodeIdVec.end(); nodeIt++) {
+			boost::mutex::scoped_lock g(eventHandlerMap.mutex());
+			eventHandlerMap.getEvent(*nodeIt, eventHandlerBaseVec);
+			for (it = eventHandlerBaseVec.begin(); it != eventHandlerBaseVec.end(); it++) {
+				EventHandlerBase::SPtr eventHandlerBase = *it;
+
+				Log(Debug, "fire event")
+				    .parameter("NumberEvents", eventHandlerBaseVec.size())
+					.parameter("Node", fireEventRequest->nodeId())
+					.parameter("EventId", eventHandlerBase->eventId());
+
+				eventHandlerBase->fireEvent(fireEventRequest->nodeId(), fireEventRequest->eventBase());
+			}
 		}
 
 		trx->statusCode(Success);
@@ -457,7 +533,8 @@ namespace OpcUaStackServer
 		// check parameter
 		//
 		if (browseName->pathNames()->size() == 0) {
-			nodeIdResult->statusCode(BadInvalidArgument);
+			nodeIdResult->nodeId(browseName->nodeId());
+			nodeIdResult->statusCode(Success);
 			return;
 		}
 

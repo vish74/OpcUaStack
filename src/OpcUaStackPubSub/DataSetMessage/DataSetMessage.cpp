@@ -21,8 +21,9 @@ namespace OpcUaStackPubSub
 {
 
 	DataSetMessage::DataSetMessage(void)
-	: messageType_(KeepAlive)
+	: dataSetMessageHeader_(constructSPtr<DataSetMessageHeader>())
 	{
+		dataSetMessageHeader_->messageType(KeepAlive);
 	}
 
 	DataSetMessage::~DataSetMessage(void)
@@ -32,13 +33,51 @@ namespace OpcUaStackPubSub
 	void
 	DataSetMessage::messageType(DataSetMessageType messageType)
 	{
-		messageType_ = messageType;
+		dataSetMessageHeader_->messageType(messageType);
 	}
 
 	DataSetMessageType
 	DataSetMessage::messageType(void)
 	{
-		return messageType_;
+		return dataSetMessageHeader_->messageType();
 	}
 
+	DataSetMessageHeader&
+	DataSetMessage::dataSetMessageHeader(void)
+	{
+		return *dataSetMessageHeader_;
+	}
+
+	void
+	DataSetMessage::dataSetMessageHeader(DataSetMessageHeader::SPtr& dataSetMessageHeader)
+	{
+		dataSetMessageHeader_ = dataSetMessageHeader;
+	}
+
+	void
+	DataSetMessage::sequenceNumber(uint16_t sequenceNumber)
+	{
+		dataSetMessageHeader_->dataMessageSequenceNumber(sequenceNumber);
+	}
+
+	uint16_t
+	DataSetMessage::sequenceNumber(void)
+	{
+		return dataSetMessageHeader_->dataMessageSequenceNumber();
+	}
+
+	bool
+	DataSetMessage::operator==(const DataSetMessage& other) const
+	{
+		return *dataSetMessageHeader_ == *other.dataSetMessageHeader_;
+	}
+
+	bool
+	DataSetMessage::operator!=(const DataSetMessage& other) const
+	{
+		return !(*this == other);
+	}
+
+
 }
+

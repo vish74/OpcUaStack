@@ -15,17 +15,20 @@
    Autor: Kai Huebl (kai@huebl-sgh.de)
  */
 
-#ifndef __OpcUaStackPubSub_MQTTClientIf_h__
-#define __OpcUaStackPubSub_MQTTClientIf_h__
+#ifndef __OpcUaStackPubSub_MQTTClientBase_h__
+#define __OpcUaStackPubSub_MQTTClientBase_h__
 
 #include <boost/shared_ptr.hpp>
 #include "OpcUaStackCore/Base/os.h"
 #include "OpcUaStackPubSub/MQTT/MQTTClientCallback.h"
+//#include "OpcUaStackPubSub/Network/NetworkSenderIf.h"
+//#include "OpcUaStackPubSub/Network/NetworkReceiverIf.h"
 
 namespace OpcUaStackPubSub
 {
 
-	class DLLEXPORT MQTTClientIf
+	class MQTTClientIf
+//	: public NetworkSenderIf
 	{
 	  public:
 		typedef boost::shared_ptr<MQTTClientIf> SPtr;
@@ -51,9 +54,19 @@ namespace OpcUaStackPubSub
 		// CALLBACK HANDLING
 		virtual void setCallback(MQTTClientCallback* callback);
 
+//		bool registerReceiverIf(NetworkReceiverIf* networkReceiverIf);
+//
+//		//
+//		// Sender and Receiver interface
+//		//
+//		virtual bool send(const NetworkMessage& message);
+
 		// class functions
 		void clientName(const std::string& clientName);
 		std::string& clientName(void);
+
+//	  protected:
+//		NetworkReceiverIf* networkReceiverIf_;
 
 	  private:
 		std::string clientName_;

@@ -26,6 +26,8 @@ namespace OpcUaStackPubSub
 	// #######################################################################
 
 	MQTTClientIf::MQTTClientIf(void)
+	: clientName_("")
+//	, networkReceiverIf_(nullptr)
 	{
 	}
 
@@ -99,4 +101,16 @@ namespace OpcUaStackPubSub
 	{
 		return clientName_;
 	}
+
+//	bool
+//	MQTTClientIf::registerReceiverIf(NetworkReceiverIf* networkReceiverIf)
+//	{
+//		networkReceiverIf_ = networkReceiverIf;
+//	}
+//
+//	bool
+//	MQTTClientIf::send(const NetworkMessage& message)
+//	{
+//		return false;
+//	}
 }

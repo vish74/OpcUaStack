@@ -28,4 +28,13 @@ namespace OpcUaStackPubSub
 	{
 	}
 
+	bool
+	DataSetWriter::publishTimeout(DataSetMessage::SPtr& dataSetMessage, uint32_t publishInterval)
+	{
+		// FIXME: Passes dataSetMessage and return true if there is new data
+		// FIXME: check KeyFrameCount
+
+		return false;
+	}
+
 }

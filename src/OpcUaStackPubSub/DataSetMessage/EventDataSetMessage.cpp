@@ -21,7 +21,15 @@ namespace OpcUaStackPubSub
 {
 
 	EventDataSetMessage::EventDataSetMessage(void)
+	: dataSetFields_(constructSPtr<DataSetFieldArray>())
+	, fieldEncoding_(VariantEncoding)
 	{
+		DataSetMessageHeader::SPtr dataSetMessageHeader = constructSPtr<DataSetMessageHeader>();
+		dataSetMessageHeader->fieldEncoding(VariantEncoding);
+		dataSetMessageHeader->dataSetMessageSequenceNumberEnabled(true);
+		dataSetMessageHeader->dataSetFlag2Enabled(true);
+		this->dataSetMessageHeader(dataSetMessageHeader);
+
 		messageType(EventData);
 	}
 
@@ -29,16 +37,42 @@ namespace OpcUaStackPubSub
 	{
 	}
 
+	DataSetFieldArray::SPtr&
+	EventDataSetMessage::dataSetFields(void)
+	{
+		return dataSetFields_;
+	}
+
 	void
 	EventDataSetMessage::opcUaBinaryEncode(std::ostream& os) const
 	{
-		// FIXME: todo
+		uint16_t fieldCount = dataSetFields_->size();
+		if (fieldCount == 0) return;
+
+		OpcUaNumber::opcUaBinaryEncode(os, fieldCount);
+		for (uint32_t idx=0; idx<fieldCount; idx++) {
+			DataSetField::SPtr dataSetField;
+			dataSetFields_->get(idx, dataSetField);
+
+			dataSetField->opcUaBinaryEncode(os);
+		}
 	}
 
 	void
 	EventDataSetMessage::opcUaBinaryDecode(std::istream& is)
 	{
-		// FIXME: todo
+		uint16_t fieldCount;
+		OpcUaNumber::opcUaBinaryDecode(is, fieldCount);
+		if (fieldCount == 0) return;
+
+		dataSetFields_->resize(fieldCount);
+		for (uint32_t idx=0; idx<fieldCount; idx++) {
+			DataSetField::SPtr dataSetField = constructSPtr<DataSetField>();
+
+			dataSetField->createObject(VariantEncoding);
+			dataSetField->opcUaBinaryDecode(is);
+			dataSetFields_->push_back(dataSetField);
+		}
 	}
 
 }

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.9)
-project	(OpcUaStack)
+project	(OpcUaStack4)
 set(CMAKE_VERBOSE_MAKEFILE ON)
 set(CMAKE_CXX_STANDARD 11)
 cmake_policy(SET CMP0053 OLD)
@@ -11,7 +11,7 @@ cmake_policy(SET CMP0053 OLD)
 #
 # ----------------------------------------------------------------------------
 # ----------------------------------------------------------------------------
-set(VERSION_MAJOR "3" CACHE STRING "major version")
+set(VERSION_MAJOR "4" CACHE STRING "major version")
 set(VERSION_MINOR "0" CACHE STRING "minor version")
 set(VERSION_PATCH "1" CACHE STRING "patch version")
 
@@ -211,7 +211,7 @@ include(OpcUaStackServer/CMakeLists.txt)
 include(OpcUaServer/CMakeLists.txt)
 include(OpcUaClient/CMakeLists.txt) 
 include(OpcUaProjectBuilder/CMakeLists.txt)
-include(OpcUaEventTypeGenerator/CMakeLists.txt)
+include(OpcUaGenerator/CMakeLists.txt)
 include(cmake/CMakeLists.txt)
 
 

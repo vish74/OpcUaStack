@@ -22,6 +22,7 @@
 #include <boost/shared_ptr.hpp>
 #include "OpcUaStackCore/Base/os.h"
 #include "OpcUaStackCore/Base/ObjectPool.h"
+
 #include "OpcUaStackPubSub/MQTT/MQTTClientIf.h"
 #include "OpcUaStackPubSub/MQTT/MQTTClientCallback.h"
 

@@ -10,6 +10,8 @@
 
 using namespace OpcUaStackPubSub;
 
+#define REAL_SERVER
+
 #ifdef REAL_SERVER
 
 BOOST_AUTO_TEST_SUITE(MQTTClient_)
@@ -21,12 +23,9 @@ BOOST_AUTO_TEST_CASE(MQTTClient_)
 
 BOOST_AUTO_TEST_CASE(MQTTClient_construct)
 {
-	MQTTClientIf::SPtr mqttClientIf = constructMQTT();
+	MQTTClientIf::SPtr mqttClient = constructMQTT();
 
-	if (mqttClientIf->mqttClientIfEnabled()) {
-		std::cout << "MQTTCLIENT ENABLED" << std::endl;
-	}
-	else {
+	if (mqttClient->mqttClientIfEnabled()) {
 		std::cout << "MQTTCLIENT DISABLED" << std::endl;
 	}
 }

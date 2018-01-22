@@ -12,29 +12,61 @@
    Informationen über die jeweiligen Bedingungen für Genehmigungen und Einschränkungen
    im Rahmen der Lizenz finden Sie in der Lizenz.
 
-   Autor: Kai Huebl (kai@huebl-sgh.de)
+   Autor: Kai Huebl (kai@huebl-sgh.de), Aleksey Timin (atimin@gmail.com)
  */
 
 #ifndef __OpcUaStackPubSub_NetworkMessageProcessor_h__
 #define __OpcUaStackPubSub_NetworkMessageProcessor_h__
 
-#include <OpcUaStackPubSub/DataSetMessage/DataMessageReadIf.h>
+#include "OpcUaStackPubSub/DataSet/DataSetReaderIf.h"
+#include "OpcUaStackPubSub/Network/NetworkReceiverIf.h"
+#include "OpcUaStackCore/Utility/IOThread.h"
 #include "OpcUaStackCore/Base/os.h"
 
 namespace OpcUaStackPubSub
 {
 
 	class DLLEXPORT NetworkMessageProcessor
+	: public NetworkReceiverIf
 	{
 	  public:
+		static const uint32_t TimeoutHandleInterval;
+
 		NetworkMessageProcessor(void);
 		~NetworkMessageProcessor(void);
 
-		bool registerDataMessageWriter(uint16_t writerId, DataMessageReadIf* dataMessageReaderIf);
+		bool startup(void);
+		bool shutdown(void);
+
+		bool deregisterDataSetReaderIf(const DataSetReaderIf::SPtr& reader);
+		virtual bool registerDataSetReaderIf(const DataSetReaderIf::SPtr& reader);
+		virtual bool receive(const NetworkMessage& message);
+
+	  protected:
+		virtual bool timeoutHandle();
 
 	  private:
+		struct DataSetReaderKey
+		{
+			DataSetReaderKey();
+			DataSetReaderKey(const DataSetReaderIf& readerIf);
+
+			bool operator< (const DataSetReaderKey& other) const;
+
+			uint16_t writerId_;
+			OpcUaVariant publisherId_;
+
+		};
+
+		typedef std::map<DataSetReaderKey, DataSetReaderIf::Set> DataSetReaderIfTree;
+
+		DataSetReaderIfTree dataSetReaderIfTree_;
+
+		IOThread::SPtr ioThread_;
+		SlotTimerElement::SPtr slotTimerElement_;
 	};
 
 }
 
 #endif
+

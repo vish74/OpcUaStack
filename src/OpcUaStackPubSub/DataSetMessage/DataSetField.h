@@ -21,7 +21,8 @@
 #include <boost/shared_ptr.hpp>
 #include <iostream>
 #include "OpcUaStackCore/Base/os.h"
-#include "OpcUaStackCore/BuildInTypes/OpcUaArray.h"
+#include "OpcUaStackCore/BuildInTypes/BuildInTypes.h"
+#include "OpcUaStackPubSub/DataSetMessage/FieldEncoding.h"
 
 using namespace OpcUaStackCore;
 
@@ -34,16 +35,27 @@ namespace OpcUaStackPubSub
 		typedef boost::shared_ptr<DataSetField> SPtr;
 
 		DataSetField(void);
+		DataSetField(FieldEncoding dataType);
 		virtual ~DataSetField(void);
+
+		FieldEncoding dataType(void);
+		void clear(void);
+		bool exist(void);
+		void createObject(FieldEncoding dataType);
+
+		void variant(OpcUaVariant::SPtr& variant);
+		OpcUaVariant::SPtr variant(void);
+		void dataValue(OpcUaDataValue::SPtr& dataValue);
+		OpcUaDataValue::SPtr dataValue(void);
+		// FIXME: meta data ....
+		Object::SPtr& object(void);
 
 		void opcUaBinaryEncode(std::ostream& os) const;
 		void opcUaBinaryDecode(std::istream& is);
 
 	  private:
-
-		// OpcUaVariant
-		// OpcUaDataValue
-		// DataSetMetaData
+		FieldEncoding dataType_;
+		Object::SPtr object_;
 	};
 
 	class DataSetFieldArray

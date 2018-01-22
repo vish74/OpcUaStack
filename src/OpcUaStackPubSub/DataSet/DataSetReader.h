@@ -19,15 +19,23 @@
 #define __OpcUaStackPubSub_DataSetReader_h__
 
 #include "OpcUaStackCore/Base/os.h"
+#include "OpcUaStackPubSub/DataSet/DataSetReaderIf.h"
 
 namespace OpcUaStackPubSub
 {
 
 	class DLLEXPORT DataSetReader
+	: public DataSetReaderIf
 	{
 	  public:
 		DataSetReader(void);
 		~DataSetReader(void);
+
+		virtual bool receiveDataSetMessage(const DataSetMessage::SPtr& dataSetMessage);
+		virtual bool checkTimeout(uint32_t timeoutInterval);
+
+	  private:
+		uint32_t receiveTimeoutCount_;
 	};
 
 }

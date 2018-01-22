@@ -21,7 +21,13 @@ namespace OpcUaStackPubSub
 {
 
 	DataDeltaFrameDataSetMessage::DataDeltaFrameDataSetMessage(void)
+	: deltaFrameFields_(constructSPtr<DeltaFrameFieldArray>())
 	{
+		DataSetMessageHeader::SPtr dataSetMessageHeader = constructSPtr<DataSetMessageHeader>();
+		dataSetMessageHeader->fieldEncoding(VariantEncoding);
+		dataSetMessageHeader->dataSetMessageSequenceNumberEnabled(true);
+		dataSetMessageHeader->dataSetFlag2Enabled(true);
+		this->dataSetMessageHeader(dataSetMessageHeader);
 		messageType(DataDeltaFrame);
 	}
 
@@ -29,16 +35,54 @@ namespace OpcUaStackPubSub
 	{
 	}
 
+	DeltaFrameFieldArray::SPtr&
+	DataDeltaFrameDataSetMessage::deltaFrameFields(void)
+	{
+		return deltaFrameFields_;
+	}
+
+	void
+	DataDeltaFrameDataSetMessage::setFieldEncoding(void)
+	{
+		if (deltaFrameFields_->size() == 0) {
+			dataSetMessageHeader().fieldEncoding(VariantEncoding);
+		}
+
+		DeltaFrameField::SPtr deltaframeField;
+		deltaFrameFields_->get(0, deltaframeField);
+		dataSetMessageHeader().fieldEncoding(deltaframeField->dataType());
+	}
+
 	void
 	DataDeltaFrameDataSetMessage::opcUaBinaryEncode(std::ostream& os) const
 	{
-		// FIXME: todo
+		uint16_t fieldCount = deltaFrameFields_->size();
+		if (fieldCount == 0) return;
+
+		OpcUaNumber::opcUaBinaryEncode(os, fieldCount);
+		for (uint32_t idx=0; idx<fieldCount; idx++) {
+			DeltaFrameField::SPtr deltaframeField;
+			deltaFrameFields_->get(idx, deltaframeField);
+
+			deltaframeField->opcUaBinaryEncode(os);
+		}
 	}
 
 	void
 	DataDeltaFrameDataSetMessage::opcUaBinaryDecode(std::istream& is)
 	{
-		// FIXME: todo
+		uint16_t fieldCount;
+		OpcUaNumber::opcUaBinaryDecode(is, fieldCount);
+		if (fieldCount == 0) return;
+
+		deltaFrameFields_->resize(fieldCount);
+		for (uint32_t idx=0; idx<fieldCount; idx++) {
+			DeltaFrameField::SPtr deltaFrameField = constructSPtr<DeltaFrameField>();
+
+			deltaFrameField->createObject(dataSetMessageHeader().fieldEncoding());
+			deltaFrameField->opcUaBinaryDecode(is);
+			deltaFrameFields_->push_back(deltaFrameField);
+		}
 	}
 
 }

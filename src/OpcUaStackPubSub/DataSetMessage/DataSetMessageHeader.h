@@ -23,6 +23,7 @@
 #include "OpcUaStackCore/Base/os.h"
 #include "OpcUaStackCore/BuildInTypes/BuildInTypes.h"
 #include "OpcUaStackPubSub/DataSetMessage/DataSetMessageType.h"
+#include "OpcUaStackPubSub/DataSetMessage/FieldEncoding.h"
 
 using namespace OpcUaStackCore;
 
@@ -33,13 +34,6 @@ namespace OpcUaStackPubSub
 	{
 	  public:
 		typedef boost::shared_ptr<DataSetMessageHeader> SPtr;
-
-		typedef enum
-		{
-			VariantEncoding,
-			RawDataEncoding,
-			DataValueEncoding
-		} FieldEncoding;
 
 		DataSetMessageHeader(void);
 		~DataSetMessageHeader(void);
@@ -78,6 +72,8 @@ namespace OpcUaStackPubSub
 
 		void opcUaBinaryEncode(std::ostream& os) const;
 		void opcUaBinaryDecode(std::istream& is);
+
+		bool operator==(const DataSetMessageHeader& other) const;
 
 	  private:
 		FieldEncoding fieldEncoding_;
