@@ -26,8 +26,6 @@
 #include "OpcUaStackPubSub/MQTT/MQTTClientBase.h"
 #include "OpcUaStackPubSub/MQTT/MQTTClientCallback.h"
 
-#define USE_MOSQUITTO_CLIENT
-
 #ifdef USE_MOSQUITTO_CLIENT
 #include "mosquitto.h"
 #include "mosquittopp.h"
