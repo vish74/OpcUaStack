@@ -52,7 +52,7 @@ namespace OpcUaStackPubSub
 	bool
 	NetworkMQTTSubscriber::shutdown(void)
 	{
-		mqttSubscriber_.unsubscribe(mid_, topic_.c_str());
+		mqttSubscriber_.unsubscribe(mid_, topic_);
 		mqttSubscriber_.shutdown();
 		networkReceiver_ = nullptr;
 		return true;
@@ -67,7 +67,7 @@ namespace OpcUaStackPubSub
 	void
 	NetworkMQTTSubscriber::onConnect(int rc)
 	{
-		mqttSubscriber_.subscribe(mid_, topic_.c_str());
+		mqttSubscriber_.subscribe(mid_, topic_);
 	}
 
 	void

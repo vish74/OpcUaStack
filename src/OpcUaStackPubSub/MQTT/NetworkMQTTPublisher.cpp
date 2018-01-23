@@ -69,7 +69,7 @@ namespace OpcUaStackPubSub
 		message.opcUaBinaryEncode(os);
 
 		const char* binaryMessage = boost::asio::buffer_cast<const char*>(sb.data());
-		mqttPublisher_.publish(mid_, topic_.c_str(), binaryMessage, sb.size());
+		mqttPublisher_.publish(mid_, topic_, binaryMessage, sb.size());
 		return true;
 	}
 
