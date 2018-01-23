@@ -20,10 +20,10 @@
 
 #include <iostream>
 #include <boost/shared_ptr.hpp>
+
 #include "OpcUaStackCore/Base/os.h"
 #include "OpcUaStackCore/Base/ObjectPool.h"
-
-#include "OpcUaStackPubSub/MQTT/MQTTClientIf.h"
+#include "OpcUaStackPubSub/MQTT/MQTTClientBase.h"
 #include "OpcUaStackPubSub/MQTT/MQTTClientCallback.h"
 
 #define USE_MOSQUITTO_CLIENT
@@ -41,7 +41,7 @@ namespace OpcUaStackPubSub
 #ifdef USE_MOSQUITTO_CLIENT
 
 	class DLLEXPORT MQTTClient
-	: public MQTTClientIf
+	: public MQTTClientBase
 	, private mosqpp::mosquittopp
 	{
 	  public:
@@ -53,17 +53,17 @@ namespace OpcUaStackPubSub
 		// INITIALIZE
 		bool init(void);
 		bool cleanup(void);
-		bool startup(const char* host, int port);
+		bool startup(const std::string& host, int port);
 		bool shutdown(void);
 		bool mqttClientIfEnabled(void);
 
 		// PUBLISHER
-		int sendPublish(int mid, const char* topic, const void* payload,
+		int sendPublish(int mid, const std::string& topic, const void* payload,
 				int payloadlen, int qos = 0, bool retain = false);
 
 		// SUBSCIRBER
-		int createSubscribtion(int mid, const char* topic, int qos = 0);
-		int deleteSubscribtion(int mid, const char* topic);
+		int createSubscribtion(int mid, const std::string& topic, int qos = 0);
+		int deleteSubscribtion(int mid, const std::string& topic);
 
 		// CALLBACK HANDLING
 		void setCallback(MQTTClientCallback* callback);
@@ -84,7 +84,7 @@ namespace OpcUaStackPubSub
 
 #endif
 
-	MQTTClientIf::SPtr constructMQTT(void);
+	MQTTClientBase::SPtr constructMQTT(void);
 
 }
 

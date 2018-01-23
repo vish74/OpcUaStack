@@ -15,36 +15,35 @@
  Autor: Samuel Huebl (samuel@huebl-sgh.de)
  */
 
-#ifndef __OpcUaStackPubSub_MQTTSubscriber_h__
-#define __OpcUaStackPubSub_MQTTSubscriber_h__
+#ifndef OPCUASTACKPUBSUB_MQTT_NETWORKMQTTSUBSCRIBER_H_
+#define OPCUASTACKPUBSUB_MQTT_NETWORKMQTTSUBSCRIBER_H_
 
+#include <iostream>
 #include <boost/shared_ptr.hpp>
+#include <boost/asio.hpp>
 
 #include "OpcUaStackCore/Base/os.h"
-#include "OpcUaStackPubSub/MQTT/MQTTClient.h"
-#include "OpcUaStackPubSub/MQTT/MQTTSubscriberCallbackIf.h"
+#include "OpcUaStackPubSub/MQTT/MQTTSubscriber.h"
+#include "OpcUaStackPubSub/Network/NetworkReceiverIf.h"
 
 namespace OpcUaStackPubSub
 {
 
-	class DLLEXPORT MQTTSubscriber
-	: public MQTTClientCallback
+	class DLLEXPORT NetworkMQTTSubscriber
+	: public MQTTSubscriberCallbackIf
 	{
 	  public:
-		typedef boost::shared_ptr<MQTTSubscriber> SPtr;
+		typedef boost::shared_ptr<NetworkMQTTSubscriber> SPtr;
 
-		MQTTSubscriber();
-		virtual ~MQTTSubscriber();
+		NetworkMQTTSubscriber(void);
+		virtual ~NetworkMQTTSubscriber(void);
 
 		// INITIALIZE
-		void startUp(const std::string& host, int port, MQTTSubscriberCallbackIf* callback);
-		void shutdown(void);
+		bool startUp(const std::string& host, int port, const std::string& topic, int mid,
+				NetworkReceiverIf* networkReceiver);
+		bool shutdown(void);
 
-		// SUBSCRIPTION
-		void subscribe(int mid, const std::string& topic);
-		void unsubscribe(int mid, const std::string& topic);
-
-		// CALLBACKS MQTTClientCallback
+		// CALLBACK MQTT IF
 		void onConnect(int rc);
 		void onDisconnect(int rc);
 		void onSubscribe(int mid);
@@ -53,10 +52,24 @@ namespace OpcUaStackPubSub
 		void onUnSubscribe(int mid);
 
 	  private:
-		MQTTClientBase::SPtr mqttClient_;
-		MQTTSubscriberCallbackIf* callback_;
+		MQTTSubscriber mqttSubscriber_;
+		NetworkReceiverIf* networkReceiver_;
+		std::string topic_;
+		int mid_;
+	};
+
+	class DLLEXPORT NetworkReceiverIfDummy
+	: public NetworkReceiverIf
+	{
+	  public:
+		NetworkReceiverIfDummy(void);
+		virtual ~NetworkReceiverIfDummy(void);
+
+		bool receive(const NetworkMessage& message);
+
+		NetworkMessage message_;
 	};
 
 } /* namespace OpcUaStackPubSub */
 
-#endif /* __OpcUaStackPubSub_MQTTSubscriber_h__ */
+#endif /* OPCUASTACKPUBSUB_MQTT_NETWORKMQTTSUBSCRIBER_H_ */

@@ -20,10 +20,12 @@
 
 #include <iostream>
 
+#include "OpcUaStackCore/Base/os.h"
+
 namespace OpcUaStackPubSub
 {
 
-	class MQTTSubscriberCallbackIf
+	class DLLEXPORT MQTTSubscriberCallbackIf
 	{
 	  public:
 		virtual ~MQTTSubscriberCallbackIf() {};
@@ -31,22 +33,22 @@ namespace OpcUaStackPubSub
 		virtual void onConnect(int rc) = 0;
 		virtual void onDisconnect(int rc) = 0;
 		virtual void onSubscribe(int mid) = 0;
-		virtual void onMessage(int mid, const char* topic, const void* payload,
+		virtual void onMessage(int mid, const std::string& topic, const void* payload,
 				int payloadlen, int qos, bool retain) = 0;
 		virtual void onUnSubscribe(int mid) = 0;
 	};
 
-	class MQTTSubscriberCallbackIfTest
+	class DLLEXPORT MQTTSubscriberCallbackIfDummy
 	: public MQTTSubscriberCallbackIf
 	{
 	  public:
-		MQTTSubscriberCallbackIfTest();
-		virtual ~MQTTSubscriberCallbackIfTest();
+		MQTTSubscriberCallbackIfDummy();
+		virtual ~MQTTSubscriberCallbackIfDummy();
 
 		void onConnect(int rc);
 		void onDisconnect(int rc);
 		void onSubscribe(int mid);
-		void onMessage(int mid, const char* topic, const void* payload,
+		void onMessage(int mid, const std::string& topic, const void* payload,
 				int payloadlen, int qos, bool retain);
 		void onUnSubscribe(int mid);
 	};

@@ -15,38 +15,48 @@
  Autor: Samuel Huebl (samuel@huebl-sgh.de)
  */
 
-#ifndef OPCUASTACKPUBSUB_MQTT_MQTTPUBLISHERCALLBACKIF_H_
-#define OPCUASTACKPUBSUB_MQTT_MQTTPUBLISHERCALLBACKIF_H_
+#ifndef OPCUASTACKPUBSUB_MQTT_NETWORKMQTTPUBLISHER_H_
+#define OPCUASTACKPUBSUB_MQTT_NETWORKMQTTPUBLISHER_H_
 
 #include <iostream>
+#include <boost/shared_ptr.hpp>
+#include <boost/asio.hpp>
 
 #include "OpcUaStackCore/Base/os.h"
+#include "OpcUaStackPubSub/MQTT/MQTTPublisher.h"
+#include "OpcUaStackPubSub/Network/NetworkSenderIf.h"
 
 namespace OpcUaStackPubSub
 {
 
-	class DLLEXPORT MQTTPublisherCallbackIf
-	{
-	  public:
-		virtual ~MQTTPublisherCallbackIf(void) {};
-
-		virtual void onConnect(int rc) = 0;
-		virtual void onDisconnect(int rc) = 0;
-		virtual void onPublish(int mid) = 0;
-	};
-
-	class DLLEXPORT MQTTPublisherCallbackIfDummy
+	class DLLEXPORT NetworkMQTTPublisher
 	: public MQTTPublisherCallbackIf
+	, public NetworkSenderIf
 	{
 	  public:
-		MQTTPublisherCallbackIfDummy(void);
-		virtual ~MQTTPublisherCallbackIfDummy(void);
+		typedef boost::shared_ptr<NetworkMQTTPublisher> SPtr;
 
+		NetworkMQTTPublisher();
+		virtual ~NetworkMQTTPublisher();
+
+		// INITIALIZE
+		bool startUp(const std::string& host, int port, const std::string& topic, int mid);
+		bool shutdown(void);
+
+		// NETWORK SENDER IF
+		bool send(const NetworkMessage& message);
+
+		// MQTT PUBLISHER CALLBACK
 		void onConnect(int rc);
 		void onDisconnect(int rc);
 		void onPublish(int mid);
+
+	  private:
+		MQTTPublisher mqttPublisher_;
+		std::string topic_;
+		int mid_;
 	};
 
 } /* namespace OpcUaStackPubSub */
 
-#endif /* OPCUASTACKPUBSUB_MQTT_MQTTPUBLISHERCALLBACKIF_H_ */
+#endif /* OPCUASTACKPUBSUB_MQTT_NETWORKMQTTPUBLISHER_H_ */

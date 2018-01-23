@@ -20,42 +20,42 @@
 namespace OpcUaStackPubSub
 {
 
-	MQTTSubscriberCallbackIfTest::MQTTSubscriberCallbackIfTest()
+	MQTTSubscriberCallbackIfDummy::MQTTSubscriberCallbackIfDummy()
 	: MQTTSubscriberCallbackIf()
 	{
 	}
 
-	MQTTSubscriberCallbackIfTest::~MQTTSubscriberCallbackIfTest()
+	MQTTSubscriberCallbackIfDummy::~MQTTSubscriberCallbackIfDummy()
 	{
 	}
 
 	void
-	MQTTSubscriberCallbackIfTest::onConnect(int rc)
+	MQTTSubscriberCallbackIfDummy::onConnect(int rc)
 	{
 		std::cout << "MQTTSubscriberCallbackIfTest::" << "onConnect rc=" << rc << std::endl;
 	}
 
 	void
-	MQTTSubscriberCallbackIfTest::onDisconnect(int rc)
+	MQTTSubscriberCallbackIfDummy::onDisconnect(int rc)
 	{
 		std::cout << "MQTTSubscriberCallbackIfTest::" << "onDisconnect rc=" << rc << std::endl;
 	}
 
 	void
-	MQTTSubscriberCallbackIfTest::onSubscribe(int mid)
+	MQTTSubscriberCallbackIfDummy::onSubscribe(int mid)
 	{
 		std::cout << "MQTTSubscriberCallbackIfTest::" << "onSubscribe mid=" << mid << std::endl;
 	}
 
 	void
-	MQTTSubscriberCallbackIfTest::onMessage(int mid, const char* topic, const void* payload,
+	MQTTSubscriberCallbackIfDummy::onMessage(int mid, const std::string& topic, const void* payload,
 			int payloadlen, int qos, bool retain)
 	{
 		std::cout << "MQTTSubscriberCallbackIfTest::" << "onMessage topic=" << topic << " -- len=" << payloadlen << std::endl;
 	}
 
 	void
-	MQTTSubscriberCallbackIfTest::onUnSubscribe(int mid)
+	MQTTSubscriberCallbackIfDummy::onUnSubscribe(int mid)
 	{
 		std::cout << "MQTTSubscriberCallbackIfTest::" << "onUnSubscribe mid=" << mid << std::endl;
 	}

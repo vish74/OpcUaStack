@@ -19,13 +19,18 @@
 #define OPCUASTACKPUBSUB_MQTT_MQTTCLIENTCALLBACK_H_
 
 #include <iostream>
+#include <boost/shared_ptr.hpp>
+
+#include "OpcUaStackCore/Base/os.h"
 
 namespace OpcUaStackPubSub
 {
 
-	class MQTTClientCallback
+	class DLLEXPORT MQTTClientCallback
 	{
 	  public:
+		typedef boost::shared_ptr<MQTTClientCallback> SPtr;
+
 		MQTTClientCallback(void);
 		virtual ~MQTTClientCallback(void);
 
@@ -33,22 +38,22 @@ namespace OpcUaStackPubSub
 		virtual void onDisconnect(int rc);
 		virtual void onPublish(int mid);
 		virtual void onSubscribe(int mid);
-		virtual void onMessage(int mid, const char* topic, const void* payload, int payloadlen, int qos, bool retain);
+		virtual void onMessage(int mid, const std::string& topic, const void* payload, int payloadlen, int qos, bool retain);
 		virtual void onUnSubscribe(int mid);
 	};
 
-	class MQTTClientCallbackTest
+	class DLLEXPORT MQTTClientCallbackDummy
 	: public MQTTClientCallback
 	{
 	  public:
-		MQTTClientCallbackTest(void);
-		virtual ~MQTTClientCallbackTest(void);
+		MQTTClientCallbackDummy(void);
+		virtual ~MQTTClientCallbackDummy(void);
 
 		void onConnect(int rc);
 		void onDisconnect(int rc);
 		void onPublish(int mid);
 		void onSubscribe(int mid);
-		void onMessage(int mid, const char* topic, const void* payload, int payloadlen, int qos, bool retain);
+		void onMessage(int mid, const std::string& topic, const void* payload, int payloadlen, int qos, bool retain);
 		void onUnSubscribe(int mid);
 	};
 

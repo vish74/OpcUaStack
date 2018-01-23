@@ -20,13 +20,14 @@
 
 #include <boost/shared_ptr.hpp>
 
+#include "OpcUaStackCore/Base/os.h"
 #include "OpcUaStackPubSub/MQTT/MQTTClient.h"
 #include "OpcUaStackPubSub/MQTT/MQTTPublisherCallbackIf.h"
 
 namespace OpcUaStackPubSub
 {
 
-	class MQTTPublisher
+	class DLLEXPORT MQTTPublisher
 	: public MQTTClientCallback
 	{
 	  public:
@@ -36,11 +37,11 @@ namespace OpcUaStackPubSub
 		virtual ~MQTTPublisher();
 
 		// INITIALIZE
-		void startUp(const char* host, int port, MQTTPublisherCallbackIf* callback = nullptr);
+		void startUp(const std::string& host, int port, MQTTPublisherCallbackIf* callback = nullptr);
 		void shutdown(void);
 
 		// PUBLSIH
-		void publish(int mid, const char* topic, const void* payload, int payloadlen);
+		void publish(int mid, const std::string& topic, const void* payload, int payloadlen);
 
 		// CALLBACKS MQTTClientCallback
 		void onConnect(int rc);
@@ -48,7 +49,7 @@ namespace OpcUaStackPubSub
 		void onPublish(int mid);
 
 	  private:
-		MQTTClientIf::SPtr mqttClient_;
+		MQTTClientBase::SPtr mqttClient_;
 		MQTTPublisherCallbackIf* callback_;
 	};
 

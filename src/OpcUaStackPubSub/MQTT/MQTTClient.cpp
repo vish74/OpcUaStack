@@ -23,7 +23,7 @@ namespace OpcUaStackPubSub
 #ifdef USE_MOSQUITTO_CLIENT
 
 	MQTTClient::MQTTClient(void)
-	: MQTTClientIf()
+	: MQTTClientBase()
 	, mosquittopp()
 	, callback_(nullptr)
 	{
@@ -61,9 +61,9 @@ namespace OpcUaStackPubSub
 	// #######################################################################
 
 	bool
-	MQTTClient::startup(const char* host, int port)
+	MQTTClient::startup(const std::string& host, int port)
 	{
-		connect_async(host, port);
+		connect_async(host.c_str(), port);
 		loop_start();
 		return true;
 	}
@@ -83,10 +83,10 @@ namespace OpcUaStackPubSub
 	// #######################################################################
 
 	int
-	MQTTClient::sendPublish(int mid, const char* topic, const void* payload,
+	MQTTClient::sendPublish(int mid, const std::string& topic, const void* payload,
 			int payloadlen, int qos, bool retain)
 	{
-		return publish(&mid, topic, payloadlen, payload, qos, retain);
+		return publish(&mid, topic.c_str(), payloadlen, payload, qos, retain);
 	}
 
 	// #######################################################################
@@ -96,15 +96,15 @@ namespace OpcUaStackPubSub
 	// #######################################################################
 
 	int
-	MQTTClient::createSubscribtion(int mid, const char* topic, int qos)
+	MQTTClient::createSubscribtion(int mid, const std::string& topic, int qos)
 	{
-		return subscribe(&mid, topic, qos);
+		return subscribe(&mid, topic.c_str(), qos);
 	}
 
 	int
-	MQTTClient::deleteSubscribtion(int mid, const char* topic)
+	MQTTClient::deleteSubscribtion(int mid, const std::string& topic)
 	{
-		return unsubscribe(&mid, topic);
+		return unsubscribe(&mid, topic.c_str());
 	}
 
 	// #######################################################################
@@ -181,16 +181,16 @@ namespace OpcUaStackPubSub
 		return true;
 	}
 
-	MQTTClientIf::SPtr constructMQTT(void)
+	MQTTClientBase::SPtr constructMQTT(void)
 	{
 		return constructSPtr<MQTTClient>();
 	}
 
 #else
 
-	MQTTClientIf::SPtr constructMQTT(void)
+	MQTTClientBase::SPtr constructMQTT(void)
 	{
-		return constructSPtr<MQTTClientIf>();
+		return constructSPtr<MQTTClientBase>();
 	}
 
 #endif

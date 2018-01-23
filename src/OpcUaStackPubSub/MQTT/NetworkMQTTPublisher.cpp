@@ -15,83 +15,83 @@
  Autor: Samuel Huebl (samuel@huebl-sgh.de)
  */
 
-#include "OpcUaStackPubSub/MQTT/MQTTPublisher.h"
+#include "OpcUaStackPubSub/MQTT/NetworkMQTTPublisher.h"
 
 namespace OpcUaStackPubSub
 {
 
-	MQTTPublisher::MQTTPublisher()
-	: mqttClient_(nullptr)
-	, callback_(nullptr)
+	NetworkMQTTPublisher::NetworkMQTTPublisher()
+	: mqttPublisher_()
+	, mid_(0)
+	, topic_("")
 	{
 	}
 
-	MQTTPublisher::~MQTTPublisher()
+	NetworkMQTTPublisher::~NetworkMQTTPublisher()
 	{
-	}
-
-	// #######################################################################
-	//
-	//  Initialization Handling
-	//
-	// #######################################################################
-
-	void
-	MQTTPublisher::startUp(const std::string& host, int port, MQTTPublisherCallbackIf* callback)
-	{
-		callback_ = callback;
-
-		mqttClient_ = constructMQTT();
-		mqttClient_->setCallback(this);
-
-		mqttClient_->init();
-		mqttClient_->startup(host, port);
-	}
-
-	void
-	MQTTPublisher::shutdown()
-	{
-		mqttClient_->shutdown();
-		mqttClient_->cleanup();
-
-		mqttClient_ = nullptr;
-		callback_ = nullptr;
 	}
 
 	// #######################################################################
 	//
-	//  Publish Handling
+	//  INITIALIZE
 	//
 	// #######################################################################
 
-	void
-	MQTTPublisher::publish(int mid, const std::string& topic, const void* payload, int payloadlen)
+	bool
+	NetworkMQTTPublisher::startUp(const std::string& host, int port,
+			const std::string& topic, int mid)
 	{
-		mqttClient_->sendPublish(mid, topic, payload, payloadlen);
+		topic_ = topic;
+		mid_ = mid;
+		mqttPublisher_.startUp(host, port, this);
+		return true;
+	}
+
+	bool
+	NetworkMQTTPublisher::shutdown(void)
+	{
+		mqttPublisher_.shutdown();
+		return true;
 	}
 
 	// #######################################################################
 	//
-	//  Callback Handling
+	//  NETWORK SENDER IF
+	//
+	// #######################################################################
+
+	bool
+	NetworkMQTTPublisher::send(const NetworkMessage& message)
+	{
+		boost::asio::streambuf sb;
+		std::ostream os(&sb);
+
+		message.opcUaBinaryEncode(os);
+
+		const char* binaryMessage = boost::asio::buffer_cast<const char*>(sb.data());
+		mqttPublisher_.publish(mid_, topic_.c_str(), binaryMessage, sb.size());
+		return true;
+	}
+
+	// #######################################################################
+	//
+	//  MQTT PUBLISHER CALLBACK
 	//
 	// #######################################################################
 
 	void
-	MQTTPublisher::onConnect(int rc)
+	NetworkMQTTPublisher::onConnect(int rc)
 	{
-		if ( callback_ ) callback_->onConnect(rc);
 	}
 
 	void
-	MQTTPublisher::onDisconnect(int rc)
+	NetworkMQTTPublisher::onDisconnect(int rc)
 	{
-		if ( callback_ ) callback_->onDisconnect(rc);
 	}
 
 	void
-	MQTTPublisher::onPublish(int mid)
+	NetworkMQTTPublisher::onPublish(int mid)
 	{
-		if ( callback_ ) callback_->onPublish(mid);
 	}
 
 } /* namespace OpcUaStackPubSub */

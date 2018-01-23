@@ -15,102 +15,89 @@
    Autor: Kai Huebl (kai@huebl-sgh.de)
  */
 
-#include "OpcUaStackPubSub/MQTT/MQTTClientIf.h"
+#include "OpcUaStackPubSub/MQTT/MQTTClientBase.h"
 
 namespace OpcUaStackPubSub
 {
 	// #######################################################################
 	//
-	//  MQTTClientIf dummy
+	//  MQTTClientBase dummy
 	//
 	// #######################################################################
 
-	MQTTClientIf::MQTTClientIf(void)
+	MQTTClientBase::MQTTClientBase(void)
 	: clientName_("")
-//	, networkReceiverIf_(nullptr)
 	{
 	}
 
-	MQTTClientIf::~MQTTClientIf(void)
+	MQTTClientBase::~MQTTClientBase(void)
 	{
 	}
 
 	bool
-	MQTTClientIf::mqttClientIfEnabled(void)
+	MQTTClientBase::mqttClientIfEnabled(void)
 	{
 		return false;
 	}
 
 	bool
-	MQTTClientIf::startup(const char* host, int port)
+	MQTTClientBase::startup(const std::string& host, int port)
 	{
 		std::cout << "startup abstarct" << std::endl;
 		return false;
 	}
 
 	bool
-	MQTTClientIf::init(void)
+	MQTTClientBase::init(void)
 	{
 		return false;
 	}
 
 	bool
-	MQTTClientIf::cleanup(void)
+	MQTTClientBase::cleanup(void)
 	{
 		return false;
 	}
 
 	bool
-	MQTTClientIf::shutdown(void)
+	MQTTClientBase::shutdown(void)
 	{
 		return false;
 	}
 
 	int
-	MQTTClientIf::sendPublish(int mid, const char* topic, const void* payload,
+	MQTTClientBase::sendPublish(int mid, const std::string& topic, const void* payload,
 			int payloadlen, int qos, bool retain)
 	{
 		return 0;
 	}
 
 	int
-	MQTTClientIf::createSubscribtion(int mid, const char* topic, int qos)
+	MQTTClientBase::createSubscribtion(int mid, const std::string& topic, int qos)
 	{
 		return 0;
 	}
 
 	int
-	MQTTClientIf::deleteSubscribtion(int mid, const char* topic)
+	MQTTClientBase::deleteSubscribtion(int mid, const std::string& topic)
 	{
 		return 0;
 	}
 
 	void
-	MQTTClientIf::setCallback(MQTTClientCallback* callback)
+	MQTTClientBase::setCallback(MQTTClientCallback* callback)
 	{
 	}
 
 	void
-	MQTTClientIf::clientName(const std::string& clientName)
+	MQTTClientBase::clientName(const std::string& clientName)
 	{
 		clientName_ = clientName;
 	}
 
 	std::string&
-	MQTTClientIf::clientName(void)
+	MQTTClientBase::clientName(void)
 	{
 		return clientName_;
 	}
-
-//	bool
-//	MQTTClientIf::registerReceiverIf(NetworkReceiverIf* networkReceiverIf)
-//	{
-//		networkReceiverIf_ = networkReceiverIf;
-//	}
-//
-//	bool
-//	MQTTClientIf::send(const NetworkMessage& message)
-//	{
-//		return false;
-//	}
 }

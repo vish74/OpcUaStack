@@ -55,7 +55,7 @@ namespace OpcUaStackPubSub
 	}
 
 	void
-	MQTTClientCallback::onMessage(int mid, const char* topic, const void* payload, int payloadlen, int qos, bool retain)
+	MQTTClientCallback::onMessage(int mid, const std::string& topic, const void* payload, int payloadlen, int qos, bool retain)
 	{
 	}
 
@@ -70,47 +70,47 @@ namespace OpcUaStackPubSub
 	//
 	// #######################################################################
 
-	MQTTClientCallbackTest::MQTTClientCallbackTest(void)
+	MQTTClientCallbackDummy::MQTTClientCallbackDummy(void)
 	: MQTTClientCallback()
 	{
 	}
 
-	MQTTClientCallbackTest::~MQTTClientCallbackTest(void)
+	MQTTClientCallbackDummy::~MQTTClientCallbackDummy(void)
 	{
 	}
 
 	void
-	MQTTClientCallbackTest::onConnect(int rc)
+	MQTTClientCallbackDummy::onConnect(int rc)
 	{
 		std::cout << "MQTTClientCallbackTest::" << "onConnect rc" << rc << std::endl;
 	}
 
 	void
-	MQTTClientCallbackTest::onDisconnect(int rc)
+	MQTTClientCallbackDummy::onDisconnect(int rc)
 	{
 		std::cout << "MQTTClientCallbackTest::" << "onDisconnect rc" << rc << std::endl;
 	}
 
 	void
-	MQTTClientCallbackTest::onPublish(int mid)
+	MQTTClientCallbackDummy::onPublish(int mid)
 	{
 		std::cout << "MQTTClientCallbackTest::" << "onPublish mid" << mid << std::endl;
 	}
 
 	void
-	MQTTClientCallbackTest::onSubscribe(int mid)
+	MQTTClientCallbackDummy::onSubscribe(int mid)
 	{
 		std::cout << "MQTTClientCallbackTest::" << "onSubscribe mid" << mid << std::endl;
 	}
 
 	void
-	MQTTClientCallbackTest::onMessage(int mid, const char* topic, const void* payload, int payloadlen, int qos, bool retain)
+	MQTTClientCallbackDummy::onMessage(int mid, const std::string& topic, const void* payload, int payloadlen, int qos, bool retain)
 	{
 		std::cout << "MQTTClientCallbackTest::" << "onMessage mid" << mid << " -- topic= " << topic << std::endl;
 	}
 
 	void
-	MQTTClientCallbackTest::onUnSubscribe(int mid)
+	MQTTClientCallbackDummy::onUnSubscribe(int mid)
 	{
 		std::cout << "MQTTClientCallbackTest::" << "onUnSubscribe mid" << mid << std::endl;
 	}

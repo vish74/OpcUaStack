@@ -37,7 +37,7 @@ namespace OpcUaStackPubSub
 	// #######################################################################
 
 	void
-	MQTTSubscriber::startUp(const char* host, int port, MQTTSubscriberCallbackIf* callback)
+	MQTTSubscriber::startUp(const std::string& host, int port, MQTTSubscriberCallbackIf* callback)
 	{
 		callback_ = callback;
 
@@ -65,13 +65,13 @@ namespace OpcUaStackPubSub
 	// #######################################################################
 
 	void
-	MQTTSubscriber::subscribe(int mid, const char* topic)
+	MQTTSubscriber::subscribe(int mid, const std::string& topic)
 	{
 		mqttClient_->createSubscribtion(mid, topic);
 	}
 
 	void
-	MQTTSubscriber::unsubscribe(int mid, const char* topic)
+	MQTTSubscriber::unsubscribe(int mid, const std::string& topic)
 	{
 		mqttClient_->deleteSubscribtion(mid, topic);
 	}
@@ -101,7 +101,7 @@ namespace OpcUaStackPubSub
 	}
 
 	void
-	MQTTSubscriber::onMessage(int mid, const char* topic, const void* payload, int payloadlen,
+	MQTTSubscriber::onMessage(int mid, const std::string& topic, const void* payload, int payloadlen,
 			int qos, bool retain)
 	{
 		callback_->onMessage(mid, topic, payload, payloadlen, qos, retain);

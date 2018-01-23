@@ -19,54 +19,42 @@
 #define __OpcUaStackPubSub_MQTTClientBase_h__
 
 #include <boost/shared_ptr.hpp>
+
 #include "OpcUaStackCore/Base/os.h"
 #include "OpcUaStackPubSub/MQTT/MQTTClientCallback.h"
-//#include "OpcUaStackPubSub/Network/NetworkSenderIf.h"
-//#include "OpcUaStackPubSub/Network/NetworkReceiverIf.h"
 
 namespace OpcUaStackPubSub
 {
 
-	class MQTTClientIf
-//	: public NetworkSenderIf
+	class DLLEXPORT MQTTClientBase
 	{
 	  public:
-		typedef boost::shared_ptr<MQTTClientIf> SPtr;
+		typedef boost::shared_ptr<MQTTClientBase> SPtr;
 
-		MQTTClientIf(void);
-		virtual ~MQTTClientIf(void);
+		MQTTClientBase(void);
+		virtual ~MQTTClientBase(void);
 
 		// INITIALIZE
 		virtual bool init(void);
 		virtual bool cleanup(void);
-		virtual bool startup(const char* host, int port);
+		virtual bool startup(const std::string& host, int port);
 		virtual bool shutdown(void);
 		virtual bool mqttClientIfEnabled(void);
 
 		// PUBLISHER
-		virtual int sendPublish(int mid, const char* topic, const void* payload,
+		virtual int sendPublish(int mid, const std::string& topic, const void* payload,
 				int payloadlen, int qos = 0, bool retain = false);
 
 		// SUBSCIRBER
-		virtual int createSubscribtion(int mid, const char* topic, int qos = 0);
-		virtual int deleteSubscribtion(int mid, const char* topic);
+		virtual int createSubscribtion(int mid, const std::string& topic, int qos = 0);
+		virtual int deleteSubscribtion(int mid, const std::string& topic);
 
 		// CALLBACK HANDLING
 		virtual void setCallback(MQTTClientCallback* callback);
 
-//		bool registerReceiverIf(NetworkReceiverIf* networkReceiverIf);
-//
-//		//
-//		// Sender and Receiver interface
-//		//
-//		virtual bool send(const NetworkMessage& message);
-
 		// class functions
 		void clientName(const std::string& clientName);
 		std::string& clientName(void);
-
-//	  protected:
-//		NetworkReceiverIf* networkReceiverIf_;
 
 	  private:
 		std::string clientName_;

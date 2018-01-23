@@ -20,29 +20,29 @@
 namespace OpcUaStackPubSub
 {
 
-	MQTTPublisherCallbackIfTest::MQTTPublisherCallbackIfTest(void)
+	MQTTPublisherCallbackIfDummy::MQTTPublisherCallbackIfDummy(void)
 	: MQTTPublisherCallbackIf()
 	{
 	}
 
-	MQTTPublisherCallbackIfTest::~MQTTPublisherCallbackIfTest(void)
+	MQTTPublisherCallbackIfDummy::~MQTTPublisherCallbackIfDummy(void)
 	{
 	}
 
 	void
-	MQTTPublisherCallbackIfTest::onConnect(int rc)
+	MQTTPublisherCallbackIfDummy::onConnect(int rc)
 	{
 		std::cout << "MQTTPublisherCallbackIfTest::" << "onConnect rc=" << rc << std::endl;
 	}
 
 	void
-	MQTTPublisherCallbackIfTest::onDisconnect(int rc)
+	MQTTPublisherCallbackIfDummy::onDisconnect(int rc)
 	{
 		std::cout << "MQTTPublisherCallbackIfTest::" << "onDisconnect rc=" << rc << std::endl;
 	}
 
 	void
-	MQTTPublisherCallbackIfTest::onPublish(int mid)
+	MQTTPublisherCallbackIfDummy::onPublish(int mid)
 	{
 		std::cout << "MQTTPublisherCallbackIfTest::" << "onPublish mid=" << mid << std::endl;
 	}
